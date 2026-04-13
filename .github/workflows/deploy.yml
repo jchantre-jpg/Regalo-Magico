@@ -1,10 +1,12 @@
-# Deploy automático al VPS al hacer push a main.
-# Configura en GitHub → Settings → Secrets and variables → Actions:
-#   VPS_HOST      = 89.117.23.31
-#   VPS_USER      = root
-#   VPS_PASSWORD  = (tu contraseña SSH; NUNCA la pegues en este archivo)
+# Deploy automático al hacer push a main (SSH por llave).
+# GitHub → Settings → Secrets and variables → Actions (las 5 del curso):
+#   SSH_HOST         → IP del VPS (ej. 89.117.23.31)
+#   SSH_PORT         → 22
+#   SSH_PRIVATE_KEY  → contenido completo de la llave privada (-----BEGIN ... -----END)
+#   SSH_USER         → root
+#   WORK_DIR         → /root/Regalo-Magico
 #
-# Rama de desarrollo: dev-juliana-chantre (merge a main para desplegar).
+# Rama desarrollo: dev-juliana-chantre (merge a main para desplegar).
 
 name: Deploy Equipo 1
 
@@ -19,14 +21,14 @@ jobs:
       - name: Desplegar en VPS
         uses: appleboy/ssh-action@v1.2.0
         with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          password: ${{ secrets.VPS_PASSWORD }}
-          port: 22
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
           script_stop: true
           script: |
             set -e
-            cd /root/Regalo-Magico
+            cd ${{ secrets.WORK_DIR }}
             git pull origin main
             npm ci
             npm run build
