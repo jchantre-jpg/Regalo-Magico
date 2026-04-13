@@ -1,40 +1,25 @@
-# Deploy automático al hacer push a main (SSH por llave).
-# GitHub → Settings → Secrets and variables → Actions (las 5 del curso):
-#   SSH_HOST         → IP del VPS (ej. 89.117.23.31)
-#   SSH_PORT         → 22
-#   SSH_PRIVATE_KEY  → contenido completo de la llave privada (-----BEGIN ... -----END)
-#   SSH_USER         → root
-#   WORK_DIR         → /root/Regalo-Magico
-#
-# Rama desarrollo: dev-juliana-chantre (merge a main para desplegar).
-
-name: Deploy Equipo 1
+name: Deploy VPS Equipo 1
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Desplegar en VPS
-        uses: appleboy/ssh-action@v1.2.0
+      - name: Deploy en VPS
+        uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
-          script_stop: true
           script: |
-            set -e
             cd ${{ secrets.WORK_DIR }}
             git pull origin main
-            npm ci
+            npm install
             npm run build
-            if pm2 describe equipo1-regalo_magico >/dev/null 2>&1; then
-              pm2 restart equipo1-regalo_magico
-            else
-              pm2 start server.js --name equipo1-regalo_magico
-            fi
-            pm2 save
+            pm2 restart equipo1-regalo_magico
