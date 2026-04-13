@@ -130,16 +130,19 @@ apt install -y certbot python3-certbot-nginx
 certbot --nginx -d ele5-1.apolobyte.top
 ```
 
-### 7. CI/CD (GitHub Actions)
+### 7. CI/CD (GitHub Actions) — las 5 variables
 
-**Settings → Secrets → Actions:**
+En el repo: **Settings → Secrets and variables → Actions → New repository secret**
 
-| Nombre          | Valor            |
-|----------------|------------------|
-| `VPS_HOST`     | `89.117.23.31`   |
-| `VPS_USER`     | `root`           |
-| `VPS_PASSWORD` | Contraseña SSH   |
+| Secreto | Qué poner |
+|---------|-----------|
+| **`SSH_HOST`** | IP del VPS, ej. `89.117.23.31` |
+| **`SSH_PORT`** | `22` |
+| **`SSH_PRIVATE_KEY`** | Todo el contenido de tu llave **privada** (`-----BEGIN ... PRIVATE KEY-----` … `-----END ...-----`). En el VPS debe estar la **pública** en `~/.ssh/authorized_keys`. |
+| **`SSH_USER`** | `root` (o el usuario que use SSH) |
+| **`WORK_DIR`** | Ruta del proyecto en el servidor: `/root/Regalo-Magico` |
 
-Cada `push` a **`main`**: `git pull`, `npm ci`, `npm run build`, `pm2 restart equipo1-regalo_magico`.
+Cada `push` a **`main`** ejecuta: `cd WORK_DIR`, `git pull`, `npm ci`, `npm run build`, `pm2 restart equipo1-regalo_magico`.
 
-No subas contraseñas al código.
+No pegues llaves ni contraseñas en el código YAML; solo en estos secretos.
+
