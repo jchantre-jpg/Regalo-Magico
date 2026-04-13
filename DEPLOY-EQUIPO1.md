@@ -3,7 +3,7 @@
 Este proyecto es **Vite + React**; en producción se usa **`server.js`** (Express) en el puerto **3006**. Nginx hace proxy al `3006`.
 
 - **PM2:** `equipo1-regalo_magico`
-- **Nginx:** archivo `equipo1regalo_magico` en `sites-available`
+- **Nginx (equipo 1):** archivo `web_ele5_1` en `sites-available` (misma lógica que la pizarra `web_ele5_3`, con **tu** dominio y **puerto 3006**)
 
 ## Rama de desarrollo
 
@@ -88,13 +88,28 @@ pm2 save
 pm2 startup
 ```
 
-### 5. Nginx
+### 5. Nginx — como en la pizarra del profe (adaptado equipo **1**, puerto **3006**)
+
+En el ejemplo del curso usan `web_ele5_3` + puerto `3002` + otro dominio. **Tú** usas:
+
+| En el ejemplo (otro equipo) | Equipo 1 — Regalo Mágico |
+|----------------------------|---------------------------|
+| `web_ele5_3` | **`web_ele5_1`** |
+| `3002` | **`3006`** |
+| `openproject.apolobyte.top` | **`ele5-1.apolobyte.top`** |
+| `ele5-3.apolobyte.to` en certbot | **`ele5-1.apolobyte.top`** |
+
+**1)** Crear/editar el sitio (elige una):
 
 ```bash
-nano /etc/nginx/sites-available/equipo1regalo_magico
+# Si en el VPS tienes VS Code / code:
+sudo code /etc/nginx/sites-available/web_ele5_1
+
+# Si no (lo normal en servidor):
+sudo nano /etc/nginx/sites-available/web_ele5_1
 ```
 
-Pegar:
+**2)** Pegar esta configuración (proxy a tu app en **3006**):
 
 ```nginx
 server {
@@ -109,28 +124,37 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
     }
 
-    access_log /var/log/nginx/equipo1-regalo-magico.access.log;
-    error_log /var/log/nginx/equipo1-regalo-magico.error.log;
+    access_log /var/log/nginx/ele5-1.access.log;
+    error_log /var/log/nginx/ele5-1.error.log;
 }
 ```
 
-Activar y recargar:
+**3)** Enlace a `sites-enabled` — el nombre **debe ser el mismo** que en `sites-available` (en la pizarra a veces fallan por poner otro nombre):
 
 ```bash
-ln -sf /etc/nginx/sites-available/equipo1regalo_magico /etc/nginx/sites-enabled/equipo1regalo_magico
-nginx -t
-systemctl reload nginx
+sudo ln -sf /etc/nginx/sites-available/web_ele5_1 /etc/nginx/sites-enabled/web_ele5_1
 ```
 
-### 6. HTTPS (Certbot)
+**4)** Verificar y recargar:
 
 ```bash
-apt update
-apt install -y certbot python3-certbot-nginx
-certbot --nginx -d ele5-1.apolobyte.top
+sudo nginx -t
+sudo systemctl reload nginx
 ```
 
-### 7. CI/CD (GitHub Actions) — las 5 variables
+**5)** Certificado SSL (dominio **tuyo**, no el del ejemplo):
+
+```bash
+sudo apt update
+sudo apt install -y certbot python3-certbot-nginx
+sudo certbot --nginx -d ele5-1.apolobyte.top
+```
+
+(Antes, el DNS de `ele5-1.apolobyte.top` debe apuntar a la IP del VPS.)
+
+Si en el VPS ya tenías otro archivo (por ejemplo `equipo1regalo_magico`) apuntando al mismo dominio, desactiva el enlace viejo para evitar conflictos: `sudo rm /etc/nginx/sites-enabled/equipo1regalo_magico` y luego `sudo nginx -t && sudo systemctl reload nginx`.
+
+### 6. CI/CD (GitHub Actions) — las 5 variables
 
 En el repo: **Settings → Secrets and variables → Actions → New repository secret**
 

@@ -6,7 +6,8 @@ set -euo pipefail
 REPO_URL="${REPO_URL:-https://github.com/jchantre-jpg/Regalo-Magico.git}"
 APP_DIR="/root/Regalo-Magico"
 PM2_NAME="equipo1-regalo_magico"
-NGINX_CONF="equipo1regalo_magico"
+# Mismo criterio que la guía del curso (web_ele5_3 → equipo 1 = web_ele5_1)
+NGINX_CONF="web_ele5_1"
 DOMAIN="ele5-1.apolobyte.top"
 PORT=3006
 
@@ -48,8 +49,8 @@ server {
         proxy_set_header X-Forwarded-Proto \$scheme;
     }
 
-    access_log /var/log/nginx/equipo1-regalo-magico.access.log;
-    error_log /var/log/nginx/equipo1-regalo-magico.error.log;
+    access_log /var/log/nginx/ele5-1.access.log;
+    error_log /var/log/nginx/ele5-1.error.log;
 }
 NGINX_EOF
 
