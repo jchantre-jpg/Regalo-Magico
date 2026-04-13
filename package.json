@@ -10,9 +10,11 @@
     "dev": "vite",
     "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.node.json",
     "build": "tsc --noEmit && tsc --noEmit -p tsconfig.node.json && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "node server.js"
   },
   "dependencies": {
+    "express": "^5.1.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
