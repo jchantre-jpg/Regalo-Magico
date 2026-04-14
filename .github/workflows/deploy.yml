@@ -24,7 +24,7 @@ jobs:
           port: ${{ secrets.SSH_PORT || 22 }}
           script_stop: true
           script: |
-            set -euo pipefail
+            set -eu
             cd ${{ secrets.WORK_DIR }}
             git fetch origin main
             git checkout main
