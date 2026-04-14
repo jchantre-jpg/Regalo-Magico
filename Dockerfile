@@ -16,7 +16,7 @@ ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 
 RUN npm run build
 
-# Runtime: Nginx sirve la SPA y hace proxy de /api al servicio `backend` en Docker Compose
+# Runtime: Nginx sirve la SPA y hace proxy de /api al servicio `backend` (mismo puerto que PORT en compose, p. ej. 8085)
 FROM nginx:1.27-alpine
 
 COPY nginx.conf /etc/nginx/conf.d/default.conf

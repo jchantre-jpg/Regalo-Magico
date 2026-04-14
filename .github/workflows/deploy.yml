@@ -4,6 +4,11 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-equipo1-main
+  cancel-in-progress: true
 
 jobs:
   deploy:
@@ -11,15 +16,32 @@ jobs:
 
     steps:
       - name: Deploy en VPS
-        uses: appleboy/ssh-action@v1.0.0
+        uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SSH_PORT }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          script_stop: true
           script: |
+            set -euo pipefail
             cd ${{ secrets.WORK_DIR }}
-            git pull origin main
-            npm install
+            git fetch origin main
+            git checkout main
+            git pull --ff-only origin main
+            npm ci
             npm run build
-            pm2 restart equipo1-regalo_magico
+            if pm2 describe equipo1-regalo_magico >/dev/null 2>&1; then
+              pm2 restart equipo1-regalo_magico
+            else
+              pm2 start server.js --name equipo1-regalo_magico
+            fi
+            pm2 save
+            SMOKE_URL="http://127.0.0.1:3006/health"
+            echo "Ejecutando smoke test: ${SMOKE_URL}"
+            if ! curl -fsS --max-time 15 "${SMOKE_URL}" >/dev/null; then
+              echo "::error::Smoke test fallo en ${SMOKE_URL}"
+              pm2 logs equipo1-regalo_magico --lines 40 --nostream || true
+              exit 1
+            fi
+            echo "Smoke test OK"

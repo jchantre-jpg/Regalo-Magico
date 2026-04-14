@@ -1,0 +1,65 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VITE_USE_API: ${VITE_USE_API:-true}
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api}
+    container_name: regalomagico-frontend
+    depends_on:
+      backend:
+        condition: service_started
+    ports:
+      - "${FRONTEND_PORT:-3006}:80"
+    restart: unless-stopped
+    networks:
+      - regalomagico-net
+
+  # Este servicio usa una imagen de backend ya construida.
+  # Si luego versionas el código del backend en este repo, cambia "image" por "build: ./backend".
+  backend:
+    image: ${BACKEND_IMAGE:-regalomagico-backend:latest}
+    container_name: regalomagico-backend
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PORT: ${BACKEND_PORT_INTERNAL:-8085}
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-regalomagico1}
+      DB_USER: ${DB_USER:-equipo1}
+      DB_PASSWORD: ${DB_PASSWORD:-equipo1pass}
+    ports:
+      - "${BACKEND_PORT_HOST:-8086}:${BACKEND_PORT_INTERNAL:-8085}"
+    restart: unless-stopped
+    networks:
+      - regalomagico-net
+
+  db:
+    image: postgres:16
+    container_name: regalomagico-db
+    environment:
+      POSTGRES_DB: ${DB_NAME:-regalomagico1}
+      POSTGRES_USER: ${DB_USER:-equipo1}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-equipo1pass}
+    ports:
+      - "${DB_PORT_HOST:-54326}:5432"
+    volumes:
+      - regalomagico-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-equipo1} -d ${DB_NAME:-regalomagico1}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+    networks:
+      - regalomagico-net
+
+volumes:
+  regalomagico-db-data:
+
+networks:
+  regalomagico-net:
+    name: regalomagico_regalomagico-net

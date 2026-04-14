@@ -12,6 +12,14 @@ const __dirname = path.dirname(__filename);
 const PORT = Number(process.env.PORT) || 3006;
 const app = express();
 
+app.get('/health', (_req, res) => {
+  res.status(200).json({
+    ok: true,
+    service: 'regalo-magico-web',
+    uptime: Math.floor(process.uptime()),
+  });
+});
+
 const dist = path.join(__dirname, 'dist');
 app.use(express.static(dist));
 
