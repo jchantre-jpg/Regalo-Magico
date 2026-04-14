@@ -2,9 +2,13 @@ name: CI
 
 on:
   pull_request:
+    branches:
+      - main
+      - dev-juliana-chantre
   push:
     branches:
       - main
+      - dev-juliana-chantre
   workflow_dispatch:
 
 jobs:
