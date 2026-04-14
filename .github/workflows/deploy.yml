@@ -26,11 +26,9 @@ jobs:
           set -eu
           [ -n "$SSH_HOST" ] || { echo "::error::Falta secret SSH_HOST"; exit 1; }
           [ -n "$SSH_USER" ] || { echo "::error::Falta secret SSH_USER"; exit 1; }
+          [ -n "$SSH_PORT" ] || { echo "::error::Falta secret SSH_PORT"; exit 1; }
           [ -n "$SSH_PRIVATE_KEY" ] || { echo "::error::Falta secret SSH_PRIVATE_KEY"; exit 1; }
           [ -n "$WORK_DIR" ] || { echo "::error::Falta secret WORK_DIR"; exit 1; }
-          if [ -z "${SSH_PORT:-}" ]; then
-            echo "::warning::SSH_PORT vacío; se usará 22"
-          fi
 
       - name: Deploy en VPS
         uses: appleboy/ssh-action@v1.0.0
@@ -38,8 +36,7 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: 22
-          debug: true
+          port: ${{ secrets.SSH_PORT }}
           script_stop: true
           script: |
             set -eu
