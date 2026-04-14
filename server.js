@@ -23,7 +23,7 @@ app.get('/health', (_req, res) => {
 const dist = path.join(__dirname, 'dist');
 app.use(express.static(dist));
 
-app.get('*', (_req, res) => {
+app.use((_req, res) => {
   res.sendFile(path.join(dist, 'index.html'));
 });
 
