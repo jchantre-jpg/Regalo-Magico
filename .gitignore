@@ -1,5 +1,3 @@
-# Regalo Mágico — archivos locales que no deben versionarse.
-
 # OS
 .DS_Store
 Thumbs.db
@@ -28,12 +26,11 @@ build/
 .env.local
 .env.*.local
 
-# Catálogo generado para importar a Postgres (npm run catalog:export-db)
-bd/catalog.import.json
-
-
 *.crdownload
 
-# Claves locales de deploy (no subir a GitHub)
+# Claves SSH locales (no subir al repo)
 gh-regalo-magico-deploy
 gh-regalo-magico-deploy.pub
+
+# Respaldo accidental de dependencias
+node_modules.bak/
