@@ -1,3 +1,7 @@
+/**
+ * Abrir WhatsApp con texto prearmado (pedido o mensaje de información).
+ * El número puede venir de `data-whatsapp` en `<body>` o de `CONFIG` en `catalog.ts`.
+ */
 import { CONFIG } from '../data/catalog';
 
 export type OrderLine = { nombre: string; quantity: number; precio: number };
@@ -56,6 +60,7 @@ export async function openWhatsAppWithText(
   const num = getWhatsAppPhoneDigits();
 
   if (num) {
+    /* api.whatsapp.com con phone + text codificado */
     const sendUrl = `https://api.whatsapp.com/send?phone=${encodeURIComponent(num)}&text=${encodeURIComponent(message)}`;
     window.open(sendUrl, '_blank', 'noopener,noreferrer');
     return;
