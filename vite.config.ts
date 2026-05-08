@@ -1,3 +1,7 @@
+/**
+ * Vite + React + Tailwind v4 (`@tailwindcss/vite`).
+ * En desarrollo, `/api/*` se proxifica al backend (URL por defecto en esta rama o `VITE_DEV_API_PROXY` en `.env`).
+ */
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig, loadEnv } from 'vite';

@@ -1,3 +1,11 @@
+/**
+ * Capa de datos del catálogo para la tienda.
+ *
+ * - Si `VITE_USE_API === 'true'`: GET `{base}/productos` (en dev el proxy Vite reenvía `/api`).
+ * - Si falla la red o la lista viene vacía: fallback a `PRODUCTOS` en `catalog.ts`.
+ *
+ * Variables `.env`: `VITE_USE_API`, `VITE_API_BASE_URL`.
+ */
 import { PRODUCTOS, type Product } from '../data/catalog';
 
 function asString(v: unknown): string | undefined {
@@ -8,6 +16,7 @@ function asNumber(v: unknown): number | undefined {
   return typeof v === 'number' && !Number.isNaN(v) ? v : undefined;
 }
 
+/** Adapta una fila JSON del backend al tipo `Product` que consumen React y el carrito. */
 function normalizeRow(p: Record<string, unknown>): Product {
   const rawFotos = p.fotos;
   const fotos = Array.isArray(rawFotos)
