@@ -26,4 +26,12 @@ build/
 .env.local
 .env.*.local
 
+# Catálogo generado para importar a Postgres (npm run catalog:export-db)
+bd/catalog.import.json
+
+
 *.crdownload
+
+# Claves locales de deploy (no subir a GitHub)
+gh-regalo-magico-deploy
+gh-regalo-magico-deploy.pub

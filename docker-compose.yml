@@ -16,10 +16,11 @@ services:
     networks:
       - regalomagico-net
 
-  # Este servicio usa una imagen de backend ya construida.
-  # Si luego versionas el código del backend en este repo, cambia "image" por "build: ./backend".
   backend:
-    image: ${BACKEND_IMAGE:-regalomagico-backend:latest}
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: regalomagico-backend:local
     container_name: regalomagico-backend
     depends_on:
       db:
@@ -31,6 +32,7 @@ services:
       DB_NAME: ${DB_NAME:-regalomagico1}
       DB_USER: ${DB_USER:-equipo1}
       DB_PASSWORD: ${DB_PASSWORD:-equipo1pass}
+      ADMIN_TOKEN: ${ADMIN_TOKEN:-}
     ports:
       - "${BACKEND_PORT_HOST:-8086}:${BACKEND_PORT_INTERNAL:-8085}"
     restart: unless-stopped
@@ -48,6 +50,7 @@ services:
       - "${DB_PORT_HOST:-54326}:5432"
     volumes:
       - regalomagico-db-data:/var/lib/postgresql/data
+      - ./bd:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-equipo1} -d ${DB_NAME:-regalomagico1}"]
       interval: 10s
