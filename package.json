@@ -11,7 +11,9 @@
     "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.node.json",
     "build": "tsc --noEmit && tsc --noEmit -p tsconfig.node.json && vite build",
     "preview": "vite preview",
-    "start": "node server.js"
+    "start": "node server.js",
+    "catalog:export-db": "node scripts/catalog-for-db.mjs",
+    "db:import-catalog": "node scripts/catalog-for-db.mjs && node backend/scripts/import-catalog-json.mjs"
   },
   "dependencies": {
     "express": "^5.1.0",
