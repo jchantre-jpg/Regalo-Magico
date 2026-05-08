@@ -2,6 +2,8 @@
 
 Este proyecto es **Vite + React**; en producción se usa **`server.js`** (Express) en el puerto **3006**. Nginx hace proxy al `3006`.
 
+> **Dos formas de “producción” en el repo:** esta guía es **solo SPA + `server.js`** (sin Postgres ni API en el mismo VPS). Si necesitas catálogo desde base de datos en el mismo stack, revisa **`docker-compose.yml`** en la raíz (Nginx del contenedor ya proxifica `/api` al backend).
+
 - **PM2:** `equipo1-regalo_magico`
 - **Nginx (equipo 1):** archivo `web_ele5_1` en `sites-available` (misma lógica que la pizarra `web_ele5_3`, con **tu** dominio y **puerto 3006**)
 

@@ -1,4 +1,6 @@
--- Datos iniciales de ejemplo (ajusta o amplía desde el API o SQL).
+-- Semilla opcional: unos pocos productos para probar GET /api/productos sin import JSON.
+-- Rutas en fotos deben existir bajo public/imagenes en la web o tu CDN.
+
 INSERT INTO productos (nombre, categoria, precio, emoji, descripcion, contenido, fotos)
 VALUES
 (
@@ -55,3 +57,5 @@ VALUES
   NULL,
   '["/imagenes/1.jpeg"]'::jsonb
 );
+
+-- Si la BD ya tenía datos, estos INSERT pueden chocar o duplicar; mejor vaciar tabla + import JSON o borrar volumen Docker una vez.

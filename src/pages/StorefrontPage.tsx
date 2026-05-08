@@ -1,3 +1,10 @@
+/**
+ * Página principal de la tienda (one-page): hero, categorías, grilla, carrito lateral, modal de detalle.
+ *
+ * - Datos: `useProductsCatalog` → `fetchProducts` (API si `VITE_USE_API`, si no `catalog.ts`).
+ * - Carrito: `useCart` (React Context + `localStorage`).
+ * - Cobro: sin pasarela; `whatsapp.ts` arma el mensaje y abre WhatsApp.
+ */
 import { useCallback, useEffect, useMemo, useState, type MouseEvent } from 'react';
 import { CATEGORIAS, CONFIG, type Product } from '../data/catalog';
 import { useCart } from '../context/CartContext';
@@ -6,6 +13,7 @@ import { formatPriceCOP } from '../utils/formatPrice';
 import { publicUrl } from '../utils/publicUrl';
 import { formatWhatsAppOrderText, openWhatsAppWithText } from '../utils/whatsapp';
 
+/** Primera foto vía `publicUrl`; si falla la carga o no hay URL, muestra el emoji del producto. */
 function ProductImage({ product, className = '' }: { product: Product; className?: string }) {
   const [broken, setBroken] = useState(false);
   const src = product.fotos?.[0] ? publicUrl(product.fotos[0]) : '';
@@ -26,6 +34,7 @@ export function StorefrontPage() {
   const { products, ready } = useProductsCatalog();
   const { items, add, remove, updateQty, clear, total, count } = useCart();
 
+  /** Filtro de categoría en la grilla; overlays de navegación carrito/modal; hash scroll en la misma página. */
   const [filter, setFilter] = useState<string>('todos');
   const [cartOpen, setCartOpen] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
@@ -36,6 +45,7 @@ export function StorefrontPage() {
     return products.filter((p) => p.categoria === filter);
   }, [products, filter]);
 
+  /** Click en anclas internas: scroll suave y cierra menú hamburguesa en móvil. */
   const scrollTo = useCallback((hash: string) => {
     const el = document.querySelector(hash);
     if (el) el.scrollIntoView({ behavior: 'smooth' });
@@ -62,6 +72,7 @@ export function StorefrontPage() {
     if (!cartOpen) document.body.style.overflow = '';
   }, [cartOpen]);
 
+  /** Escape cierra modal y carrito (accesibilidad). */
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -73,12 +84,14 @@ export function StorefrontPage() {
     return () => document.removeEventListener('keydown', onKey);
   }, [closeModal, closeCart]);
 
+  /** Botón flotante: si hay ítems, el texto lleva el pedido; si no, mensaje genérico de contacto. */
   const onWhatsAppFloat = (e: MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     const orderFlow = items.length > 0;
     openWhatsAppWithText(formatWhatsAppOrderText(orderFlow ? items : [], total), { orderFlow });
   };
 
+  /** Después de enviar por WhatsApp se vacía el carrito y se cierra el drawer. */
   const onCheckout = () => {
     if (items.length === 0) return;
     openWhatsAppWithText(formatWhatsAppOrderText(items, total), { orderFlow: true });
@@ -94,6 +107,7 @@ export function StorefrontPage() {
         Saltar al contenido
       </a>
 
+      {/* Botón fijo: mismo handler que arma el mensaje según si hay carrito o no. */}
       <a
         href={CONFIG.whatsappLink}
         className="whatsapp-float"
@@ -107,6 +121,7 @@ export function StorefrontPage() {
         <span>Pedir por WhatsApp</span>
       </a>
 
+      {/* Logo, menú desktop/móvil, acceso admin estático y badge del carrito. */}
       <header className="header" id="header">
         <div className="header-container">
           <a href="#inicio" className="logo" onClick={(e) => { e.preventDefault(); scrollTo('#inicio'); }}>
@@ -168,6 +183,7 @@ export function StorefrontPage() {
       </header>
 
       <main id="contenido-principal">
+        {/* Portada + CTA hacia el catálogo */}
         <section className="hero" id="inicio">
           <div className="hero-bg">
             <div className="hero-gradient" />
@@ -189,6 +205,7 @@ export function StorefrontPage() {
           </div>
         </section>
 
+        {/* Chips que aplican `setFilter` y llevan a #productos */}
         <section className="section categories" id="categorias">
           <div className="container">
             <h2 className="section-title">Categorías</h2>
@@ -219,6 +236,7 @@ export function StorefrontPage() {
           </div>
         </section>
 
+        {/* Filtros por categoría + tarjetas; clic abre modal salvo en botón Agregar */}
         <section className="section products" id="productos">
           <div className="container">
             <h2 className="section-title">Productos destacados</h2>
@@ -295,6 +313,7 @@ export function StorefrontPage() {
           </div>
         </section>
 
+        {/* Pasos explicativos (el checkout real es WhatsApp) */}
         <section className="section how-it-works" id="como-funciona">
           <div className="container">
             <h2 className="section-title">¿Cómo comprar?</h2>
@@ -321,6 +340,7 @@ export function StorefrontPage() {
           </div>
         </section>
 
+        {/* WhatsApp de contacto sin ítems en carrito (`orderFlow: false`) */}
         <section className="section contact" id="contacto">
           <div className="container">
             <h2 className="section-title">Contacto</h2>
@@ -351,6 +371,7 @@ export function StorefrontPage() {
         </section>
       </main>
 
+      {/* Pie con enlace a admin.html (página estática fuera de esta SPA si existe en public/). */}
       <footer className="footer">
         <div className="container">
           <div className="footer-content">
@@ -366,6 +387,7 @@ export function StorefrontPage() {
         </div>
       </footer>
 
+      {/* Drawer lateral del carrito + overlay semitransparente */}
       <div
         className={`cart-overlay${cartOpen ? ' active' : ''}`}
         aria-hidden={!cartOpen}
@@ -437,6 +459,7 @@ export function StorefrontPage() {
         ) : null}
       </aside>
 
+      {/* Detalle de producto a pantalla completa */}
       <div
         className={`modal-overlay${modalProduct ? ' active' : ''}`}
         id="product-modal-overlay"

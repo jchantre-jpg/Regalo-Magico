@@ -18,6 +18,7 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_JSON = path.resolve(__dirname, '..', '..', 'bd', 'catalog.import.json');
 
+/** Misma convención de variables que backend/src/index.js para usar desde host o Docker. */
 function poolFromEnv() {
   return new pg.Pool({
     host: process.env.DB_HOST || '127.0.0.1',
@@ -29,6 +30,7 @@ function poolFromEnv() {
 }
 
 async function main() {
+  /** Primer argumento sin banderas = ruta al JSON; si falta, `bd/catalog.import.json` junto al repo. */
   const positional = process.argv.slice(2).filter((a) => !a.startsWith('-'));
   const jsonPath = path.resolve(positional[0] || DEFAULT_JSON);
 
@@ -49,6 +51,7 @@ async function main() {
   const client = await pool.connect();
 
   try {
+    /** Reemplazo total: vacía la tabla y vuelve a insertar ids explícitos del JSON. */
     await client.query('BEGIN');
     await client.query('DELETE FROM productos');
 
@@ -57,6 +60,7 @@ async function main() {
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8::jsonb, TRUE)
     `;
 
+    /** Insert por fila conservando `id` del JSON para igualar referencias en tienda y BD. */
     for (const row of items) {
       const id = typeof row.id === 'number' ? row.id : parseInt(String(row.id), 10);
       const nombre = String(row.nombre ?? '').trim() || 'Producto';
@@ -71,6 +75,7 @@ async function main() {
         throw new Error(`ID inválido en fila: ${JSON.stringify(row)}`);
       }
 
+      // Sin URLs válidas: una ruta placeholder para no persistir `[]` en fotos (menos <img> vacíos).
       await client.query(insertSql, [
         id,
         nombre,
@@ -83,6 +88,7 @@ async function main() {
       ]);
     }
 
+    /** Evita choques en INSERT posteriores sin id (serial sigue después del máximo importado). */
     await client.query(
       `SELECT setval(pg_get_serial_sequence('productos', 'id'), COALESCE((SELECT MAX(id) FROM productos), 1))`
     );

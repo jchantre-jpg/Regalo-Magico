@@ -1,20 +1,28 @@
 /**
- * RegaloMágico - Catálogo de productos
- * Configura aquí el número de WhatsApp y los productos
+ * RegaloMágico — datos de catálogo y configuración de la tienda (frontend).
+ *
+ * - CONFIG / CATEGORIAS / PRODUCTOS: usados por la SPA React (`fetchProducts`, `StorefrontPage`, WhatsApp).
+ * - PRODUCTOS es una lista larga en código (fallback cuando no hay API o falla la carga).
+ *   Fotos: rutas bajo `public/imagenes/…`.
+ *
+ * Para alimentar Postgres desde imágenes, usar scripts del repo (`catalog-for-db.mjs` + import SQL/API).
  */
 
+/** Datos de contacto y plantilla del mensaje que arma `whatsapp.ts` para pedidos o consultas. */
 export interface CatalogConfig {
   whatsappLink: string;
   whatsappNumber: string;
   orderMessage: string;
 }
 
+/** Categoría del menú de la tienda: `id` debe coincidir con `Product.categoria` y con el API. */
 export interface Categoria {
   id: string;
   nombre: string;
   icono: string;
 }
 
+/** Producto en pantalla y carrito: mismo shape que devuelve GET `/api/productos` tras normalizar en `fetchProducts`. */
 export interface Product {
   id: number;
   nombre: string;
@@ -27,17 +35,15 @@ export interface Product {
 }
 
 export const CONFIG = {
+  /** Link listo para `window.open`; debe usar el mismo número que `whatsappNumber` cuando sea api.whatsapp.com. */
   whatsappLink: 'https://api.whatsapp.com/send?phone=573143562274',
+  /** Solo dígitos (incl. código país). Debe coincidir con `data-whatsapp` en `index.html` para prioridad en DOM. */
   whatsappNumber: '573143562274',
   // Mensaje predefinido para pedidos (debajo se agregan los productos que el cliente eligió)
   orderMessage: '¡Hola! Quiero hacer un pedido desde RegaloMágico.'
 } satisfies CatalogConfig;
 
-// Categorías disponibles en el catálogo.
-// `main.js` usa esto para:
-// - renderizar la grilla de categorías
-// - renderizar botones de filtro
-// - mostrar el nombre de la categoría en cada tarjeta
+// Categorías disponibles: ids deben coincidir con `Product.categoria` en PRODUCTOS o en el API.
 export const CATEGORIAS = [
   { id: 'desayunos', nombre: 'Desayunos', icono: '🍳' },
   { id: 'flores', nombre: 'Flores', icono: '🌸' },
@@ -47,12 +53,9 @@ export const CATEGORIAS = [
   { id: 'personalizados', nombre: 'Personalizados', icono: '✨' },
 ] satisfies readonly Categoria[];
 
-// Catálogo estático (fallback).
-// Usos:
-// - `main.js` muestra estos productos si no hay API o si la carga falla
-// - `products-store.js` puede mezclar estos datos con los que viene desde el backend
-// - las fotos son paths relativos a `imagenes/` (ej: `imagenes/1.jpeg`)
+// Catálogo estático embebido: sirve de respaldo si `VITE_USE_API` está desactivado o el backend falla.
 export const PRODUCTOS = [
+  // --- Referencia rápida (ids 1–4): fotos `1.jpeg` … `4.jpeg`, categoría desayunos — textos largos en plantilla ---
   { id: 1, nombre: 'Desayuno Sorpresa "Reina Mamá"', categoria: 'desayunos', precio: 65000, emoji: '👑', fotos: ['/imagenes/1.jpeg'], descripcion: `🎀 Desayuno Sorpresa "Reina Mamá" 🎀
 
 Un detalle lleno de amor, dulzura y elegancia para sorprender desde el primer momento del día. 💕
@@ -122,7 +125,7 @@ Ideal para sorprender en cumpleaños, especialmente celebraciones de 18 años o 
 Sorprende, emociona y crea un momento único que jamás olvidará. 🌟
 
 Personalizable con nombre, edad y mensaje especial. 💛` },
-  // Imágenes organizadas por categoría real (revisadas)
+  // --- Bloque mixto (ids 19–26): fotos exportadas desde WhatsApp; varias categorías en un mismo tramo ---
   { id: 19, nombre: 'Peluches con corazones', categoria: 'peluches', precio: 45000, emoji: '🧸', fotos: ['/imagenes/WhatsApp Image 2026-02-26 at 10.33.32 AM.jpeg'], descripcion: 'Colección de peluches con corazones y mensajes de amor. Osos en blanco, café y gris con detalles en rojo. Ideal para cumpleaños, San Valentín o aniversario.' },
   { id: 20, nombre: 'Osos blancos I Love You', categoria: 'peluches', precio: 52000, emoji: '❤️', fotos: ['/imagenes/WhatsApp Image 2026-02-26 at 10.33.33 AM.jpeg'], descripcion: 'Par de adorables osos de peluche blancos sosteniendo corazones de lentejuelas con el mensaje "I ❤️ YOU". Perfecto para regalo de amor o cumpleaños.' },
   { id: 21, nombre: 'Variedad de peluches', categoria: 'peluches', precio: 38000, emoji: '🧸', fotos: ['/imagenes/WhatsApp Image 2026-02-26 at 10.33.34 AM.jpeg'], descripcion: 'Peluches para toda ocasión: osos con gorro de graduación, Santa, rosas, corazones y diseños personalizados. Variedad de tamaños y colores.' },
@@ -204,4 +207,5 @@ Personalizable con nombre, edad y mensaje especial. 💛` },
   { id: 93, nombre: 'Peluches San Valentín', categoria: 'peluches', precio: 45000, emoji: '❤️', fotos: ['/imagenes/Peluches-San-Valentn-640x480.jpg'], descripcion: 'Peluches temáticos San Valentín. Osos y diseños románticos para regalar.' },
   { id: 94, nombre: 'Variedad de peluches', categoria: 'peluches', precio: 35000, emoji: '🧸', fotos: ['/imagenes/peluches.jpg'], descripcion: 'Variedad de peluches para elegir. Diferentes tamaños y diseños.' },
   { id: 95, nombre: 'Oso de peluche marrón (variante)', categoria: 'peluches', precio: 38000, emoji: '🧸', fotos: ['/imagenes/oso-de-peluche-marron (1).jpg'], descripcion: 'Oso de peluche marrón. Suave, abrazable y perfecto para regalar.' }
+  // Los ids no son contiguos a propósito (histórico + imports); el API puede usar su propia secuencia.
 ] satisfies readonly Product[];

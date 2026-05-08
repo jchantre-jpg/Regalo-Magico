@@ -19,8 +19,10 @@ const OVERRIDES_FILE = path.join(APP_ROOT, '..', 'regalo-magico-app', 'product-c
 const OUT_JSON = path.join(APP_ROOT, 'bd', 'catalog.import.json');
 
 const EXT_RE = /\.(jpe?g|png|webp|avif)$/i;
+/** Precio por defecto si no hay override en JSON (mismo valor orientativo que la app Expo). */
 const PRECIO_DEFAULT = 45000;
 
+/** Lectura opcional de textos/precios editados a mano en la carpeta hermana regalo-magico-app. */
 function loadOverrides() {
   if (!fs.existsSync(OVERRIDES_FILE)) return {};
   try {
@@ -30,6 +32,7 @@ function loadOverrides() {
   }
 }
 
+/** Heurística por nombre de archivo (palabras clave en español/inglés). */
 function guessCategory(filename) {
   const f = filename.toLowerCase();
   if (/desayuno|desayun|caf[eé]|bandeja|taza|mug|pap[aá]|father|padre/.test(f)) return 'desayunos';
@@ -41,6 +44,7 @@ function guessCategory(filename) {
   return 'personalizados';
 }
 
+/** Emoji coherente con la categoría inferida (solo visual en tienda). */
 function emojiFor(cat) {
   const m = {
     desayunos: '🍳',
@@ -53,6 +57,7 @@ function emojiFor(cat) {
   return m[cat] ?? '🎁';
 }
 
+/** Normaliza capitalización por palabra para títulos legibles desde nombre de archivo. */
 function titleCaseWords(s) {
   return s
     .split(/\s+/)
@@ -61,6 +66,7 @@ function titleCaseWords(s) {
     .trim();
 }
 
+/** Quita sufijos típicos de export (scaled, dimensiones) para leer mejor el “nombre” base. */
 function stripNoiseFromBase(base) {
   return base
     .replace(/\b(scaled|min|11zon|hdr|copy|249x9|webp|jpeg|jpg)\b/gi, '')
@@ -70,15 +76,18 @@ function stripNoiseFromBase(base) {
     .trim();
 }
 
+/** Nombres de archivo que son solo hash hexadecimal no sirven como título comercial. */
 function isHashLike(s) {
   const t = s.replace(/\s/g, '');
   return /^[a-f0-9]{14,}$/i.test(t);
 }
 
+/** Ref interna tipo “00123” → tratamos como nombre no humano y ponemos etiqueta genérica. */
 function isOnlyDigits(s) {
   return /^\d{1,5}$/.test(s.trim());
 }
 
+/** Título legible desde el nombre del archivo; usa overrides o etiquetas genéricas si el nombre es basura/hash. */
 function prettyName(file, id, categoria, overrides) {
   const o = overrides[file];
   if (o?.nombre) return o.nombre.length > 85 ? `${o.nombre.slice(0, 82)}…` : o.nombre;
@@ -118,6 +127,7 @@ function prettyName(file, id, categoria, overrides) {
   return t || `Producto · ref. ${id}`;
 }
 
+/** Texto largo por categoría si no hay override (expectativas del cliente + CTA WhatsApp). */
 function prettyDescription(file, categoria, overrides) {
   const o = overrides[file];
   if (o?.descripcion) return o.descripcion;
@@ -147,6 +157,7 @@ function main() {
     process.exit(1);
   }
 
+  /** Solo imágenes reconocidas; orden estable para ids secuenciales reproducibles. */
   const files = fs
     .readdirSync(IMAGENES_DIR)
     .filter((f) => EXT_RE.test(f))
@@ -179,6 +190,7 @@ function main() {
     });
   }
 
+  /** Metadatos + items: lo consume import-catalog-json.mjs en Postgres. */
   const payload = {
     version: 1,
     generatedAt: new Date().toISOString(),

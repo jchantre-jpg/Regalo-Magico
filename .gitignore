@@ -1,3 +1,5 @@
+# Regalo Mágico — archivos locales que no deben versionarse.
+
 # OS
 .DS_Store
 Thumbs.db
