@@ -1,1 +1,2 @@
+# Evita copiar dependencias locales al contexto de build (npm ci las instala limpio).
 node_modules

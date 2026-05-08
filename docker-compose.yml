@@ -1,10 +1,16 @@
+# Stack completo: Nginx+SPA (puerto host FRONTEND_PORT, típ. 3006) → API (8086) → Postgres (54326).
+# Ver README interno del equipo / DEPLOY-EQUIPO1.md para VPS solo con server.js (sin este compose).
+
 services:
+  # Build multi-etapa: `vite build` + Nginx según Dockerfile raíz (sirve dist + proxifica /api).
   frontend:
     build:
       context: .
       dockerfile: Dockerfile
       args:
+        # Qué bakea Vite: si true, el bundle llama a /api/productos (Nginx del mismo compose proxifica).
         VITE_USE_API: ${VITE_USE_API:-true}
+        # Prefijo de las rutas API desde el navegador (debe coincidir con location /api/ en nginx.conf).
         VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api}
     container_name: regalomagico-frontend
     depends_on:
@@ -16,6 +22,7 @@ services:
     networks:
       - regalomagico-net
 
+  # API Express + pg; espera a Postgres healthy antes de arrancar bien.
   backend:
     build:
       context: ./backend
@@ -39,6 +46,7 @@ services:
     networks:
       - regalomagico-net
 
+  # Postgres 16; ejecuta SQL en ./bd al crear el volumen por primera vez.
   db:
     image: postgres:16
     container_name: regalomagico-db
@@ -60,9 +68,11 @@ services:
     networks:
       - regalomagico-net
 
+# Datos persistentes de Postgres (supervivencia entre down/up; borrar volumen = BD nueva).
 volumes:
   regalomagico-db-data:
 
+# Red privada: frontend resuelve el hostname `backend`, backend resuelve `db`.
 networks:
   regalomagico-net:
     name: regalomagico_regalomagico-net

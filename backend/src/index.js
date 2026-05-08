@@ -1,6 +1,11 @@
 /**
- * API Regalo Mágico — Express + PostgreSQL
- * Rutas bajo /api (coincide con nginx del frontend en Docker).
+ * API Regalo Mágico — Node (Express) + PostgreSQL (`pg`).
+ *
+ * Prefijo de rutas: `/api` (así Nginx del front puede proxificar `/api/` → este servicio).
+ * Variables de entorno: PORT (default 8085 en Docker interno), DB_*, ADMIN_TOKEN opcional.
+ *
+ * Endpoints públicos típicos: GET /api/productos, POST /api/pedidos, GET /api/health.
+ * Crear/editar productos: POST/PATCH /api/productos con cabecera Authorization: Bearer <ADMIN_TOKEN>.
  */
 import cors from 'cors';
 import express from 'express';
@@ -9,8 +14,10 @@ import pg from 'pg';
 const { Pool } = pg;
 
 const PORT = Number(process.env.PORT) || 8085;
+/** Si está vacío, las rutas de administración de productos responden 503. */
 const ADMIN_TOKEN = process.env.ADMIN_TOKEN || '';
 
+/** Parámetros de conexión al Postgres (en Docker: DB_HOST=db). */
 function poolConfig() {
   return {
     host: process.env.DB_HOST || '127.0.0.1',
@@ -24,6 +31,7 @@ function poolConfig() {
   };
 }
 
+/** Normaliza `fotos` desde BD (JSON array de strings u objetos `{ url }`) a lista de URLs. */
 function normalizeFotos(raw) {
   if (raw == null) return [];
   if (Array.isArray(raw)) {
@@ -38,6 +46,7 @@ function normalizeFotos(raw) {
   return [];
 }
 
+/** Devuelve el objeto producto tal como lo consume el front (strings y array de fotos). */
 function mapProductRow(row) {
   return {
     id: row.id,
@@ -51,6 +60,7 @@ function mapProductRow(row) {
   };
 }
 
+/** Middleware: compara `Authorization: Bearer …` o cabecera `x-admin-token` con `ADMIN_TOKEN`. */
 function requireAdmin(req, res, next) {
   if (!ADMIN_TOKEN) {
     res.status(503).json({ error: 'ADMIN_TOKEN no configurado en el servidor' });
@@ -65,6 +75,7 @@ function requireAdmin(req, res, next) {
   next();
 }
 
+/** Reintentos al arrancar (Postgres en Docker puede tardar segundos después del `node`). */
 async function waitForDb(pool, attempts = 30, delayMs = 1000) {
   for (let i = 0; i < attempts; i++) {
     try {
@@ -79,15 +90,20 @@ async function waitForDb(pool, attempts = 30, delayMs = 1000) {
 }
 
 async function main() {
+  /** Pool reutilizable de conexiones a Postgres. */
   const pool = new Pool(poolConfig());
   await waitForDb(pool);
 
   const app = express();
+  /** El front puede estar en otro origen (Vite en localhost, app móvil, etc.). */
   app.use(cors({ origin: true }));
+  /** Límite modesto: pedidos y creación de producto solo llevan JSON pequeño. */
   app.use(express.json({ limit: '512kb' }));
 
+  /** Sub-router montado en app.use('/api', api) al final. */
   const api = express.Router();
 
+  /** Comprobación de vida + que la BD responda. */
   api.get('/health', async (_req, res) => {
     try {
       await pool.query('SELECT 1');
@@ -97,6 +113,7 @@ async function main() {
     }
   });
 
+  /** Listado para la tienda: mismo formato JSON que espera `fetchProducts` en el front. */
   api.get('/productos', async (_req, res) => {
     try {
       const { rows } = await pool.query(
@@ -110,6 +127,7 @@ async function main() {
     }
   });
 
+  /** Opcional: guardar pedido desde otro cliente (la tienda actual arma pedidos por WhatsApp). */
   api.post('/pedidos', async (req, res) => {
     try {
       const body = req.body || {};
@@ -135,6 +153,7 @@ async function main() {
     }
   });
 
+  /** Alta de producto (herramientas / panel futuro). Requiere token admin. */
   api.post('/productos', requireAdmin, async (req, res) => {
     try {
       const b = req.body || {};
@@ -163,6 +182,7 @@ async function main() {
     }
   });
 
+  /** Actualización parcial por id (mismo token admin). */
   api.patch('/productos/:id', requireAdmin, async (req, res) => {
     try {
       const id = Number(req.params.id);
@@ -171,6 +191,7 @@ async function main() {
         return;
       }
       const b = req.body || {};
+      /** PATCH parcial: solo los campos presentes en el JSON forman el `SET` (evita pisar con undefined). */
       const fields = [];
       const vals = [];
       let n = 1;
@@ -229,13 +250,16 @@ async function main() {
     }
   });
 
+  /** Todas las rutas REST anteriores quedan bajo `/api`. */
   app.use('/api', api);
 
+  /** `0.0.0.0` permite que el contenedor Docker sea accesible desde fuera. */
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`Regalo Mágico API → http://127.0.0.1:${PORT}/api/productos`);
   });
 }
 
+/** Fallo de conexión a Postgres o error no capturado en rutas: sale con código 1 (Docker/PM2 reinician si configuraste restart). */
 main().catch((err) => {
   console.error(err);
   process.exit(1);
