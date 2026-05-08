@@ -1,10 +1,5 @@
 @import "tailwindcss";
 
-/*
- * Estilos globales + Tailwind.
- * Debajo: variables CSS (colores, tipografías) y reglas de layout propias de la tienda.
- */
-
 /* ===== RegaloMágico - Tienda de Regalos ===== */
 :root {
   /* Palette - Warm & Elegant */
@@ -50,33 +45,7 @@ body {
   padding: 0 1.5rem;
 }
 
-/* Accesibilidad: enlace oculto hasta Tab; salta el header y va a #contenido-principal (WCAG). */
-.skip-link {
-  position: absolute;
-  left: -9999px;
-  top: auto;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-}
-.skip-link:focus {
-  position: fixed;
-  left: 1rem;
-  top: 1rem;
-  width: auto;
-  height: auto;
-  overflow: visible;
-  z-index: 10000;
-  padding: 0.75rem 1.25rem;
-  background: var(--color-accent);
-  color: var(--color-bg);
-  border-radius: var(--radius-sm);
-  font-weight: 600;
-  text-decoration: none;
-  outline: 2px solid var(--color-text);
-}
-
-/* Header — barra fija: logo, nav desktop, carrito y menú hamburguesa (este último solo en móvil vía media query). */
+/* Header */
 .header {
   position: fixed;
   top: 0;
@@ -179,7 +148,6 @@ body {
   justify-content: center;
 }
 
-/* Hamburguesa: display:none en escritorio; .menu-toggle + .nav.active controlan el drawer en @media. */
 .menu-toggle {
   display: none;
   flex-direction: column;
@@ -409,7 +377,6 @@ body {
   border-color: var(--color-accent);
 }
 
-/* Tarjetas de producto: auto-fill reparte columnas según ancho del viewport. */
 .products-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -446,7 +413,6 @@ body {
   object-fit: cover;
 }
 
-/* Si la imagen 404 o URL vacía, mostramos el emoji del producto a tamaño grande. */
 .product-image .img-fallback {
   font-size: 4rem;
   display: flex;
@@ -456,7 +422,6 @@ body {
   height: 100%;
 }
 
-/* Modal de detalle: primera foto a pantalla ancha + badge “+N” si hay más rutas en fotos[]. */
 .modal-gallery {
   width: 100%;
   aspect-ratio: 1;
@@ -581,13 +546,12 @@ body {
   color: var(--color-bg);
 }
 
-/* Enlace “Admin” del nav/footer (puede apuntar a admin.html estático en producción). */
 .nav-admin {
   color: var(--color-accent) !important;
   font-weight: 600;
 }
 
-/* Carrito lateral: overlay oscurece la página; sidebar z-index por encima del header (100). */
+/* Cart Sidebar */
 .cart-overlay {
   position: fixed;
   inset: 0;
@@ -729,7 +693,7 @@ body {
   margin-bottom: 1rem;
 }
 
-/* Modal de producto: capa por encima del carrito (300+) para ver detalle sin cerrar sesión de compra. */
+/* Modal */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -799,7 +763,7 @@ body {
 .modal-product-info .modal-price { font-size: 1.5rem; color: var(--color-accent); font-weight: 700; margin-bottom: 1rem; }
 .modal-product-info p { color: var(--color-text-muted); margin-bottom: 1.5rem; }
 
-/* Responsive — nav colapsada bajo el header hasta que .nav recibe .active (toggle en React). */
+/* Responsive */
 @media (max-width: 768px) {
   .nav { display: none; }
   .menu-toggle { display: flex; }

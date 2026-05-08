@@ -1,6 +1,6 @@
 /**
- * Raíz de la interfaz: envuelve toda la tienda en `CartProvider` para que cualquier hijo use `useCart()`.
- * `styles.css` se importa aquí una vez para toda la app (Tailwind + estilos de marca).
+ * Raíz de la SPA: envuelve la tienda en `CartProvider` para que cualquier pantalla use `useCart()`.
+ * Los estilos globales (Tailwind import + CSS de marca) se cargan una sola vez aquí.
  */
 import { CartProvider } from './context/CartContext';
 import { StorefrontPage } from './pages/StorefrontPage';
@@ -8,11 +8,8 @@ import './styles.css';
 
 export default function App() {
   return (
-    <>
-      {/* Toda la UX comercial vive en una página; routing extra iría aquí si crece el sitio. */}
-      <CartProvider>
-        <StorefrontPage />
-      </CartProvider>
-    </>
+    <CartProvider>
+      <StorefrontPage />
+    </CartProvider>
   );
 }
