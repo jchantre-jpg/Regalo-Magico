@@ -1,3 +1,8 @@
+/**
+ * Página única de la tienda: hero, categorías, grilla de productos, modal de detalle, carrito lateral.
+ *
+ * Datos: `useProductsCatalog` → API o `catalog.ts`. Carrito: `useCart`. Checkout: texto + WhatsApp (`whatsapp.ts`).
+ */
 import { useCallback, useEffect, useMemo, useState, type MouseEvent } from 'react';
 import { CATEGORIAS, CONFIG, type Product } from '../data/catalog';
 import { useCart } from '../context/CartContext';
@@ -6,6 +11,7 @@ import { formatPriceCOP } from '../utils/formatPrice';
 import { publicUrl } from '../utils/publicUrl';
 import { formatWhatsAppOrderText, openWhatsAppWithText } from '../utils/whatsapp';
 
+/** Miniatura / modal: primera foto con `publicUrl`, o emoji si la imagen falla. */
 function ProductImage({ product, className = '' }: { product: Product; className?: string }) {
   const [broken, setBroken] = useState(false);
   const src = product.fotos?.[0] ? publicUrl(product.fotos[0]) : '';
@@ -26,6 +32,7 @@ export function StorefrontPage() {
   const { products, ready } = useProductsCatalog();
   const { items, add, remove, updateQty, clear, total, count } = useCart();
 
+  /** Estado UI: filtro de categoría, drawer carrito, menú móvil, modal de producto. */
   const [filter, setFilter] = useState<string>('todos');
   const [cartOpen, setCartOpen] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
@@ -62,6 +69,7 @@ export function StorefrontPage() {
     if (!cartOpen) document.body.style.overflow = '';
   }, [cartOpen]);
 
+  /** Escape cierra modal y carrito (accesibilidad). */
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
