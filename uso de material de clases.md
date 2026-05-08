@@ -2,10 +2,6 @@
 
 Este documento relaciona **conceptos vistos en clase** con **archivos concretos** del frontend en la carpeta `src/` del repositorio [Regalo-Magico](https://github.com/jchantre-jpg/Regalo-Magico).
 
-Cuando cambie la estructura del código (nuevos componentes, hooks o carpetas), conviene **actualizar también** este archivo y el **`README.md`** raíz para que el equipo y el docente encuentren siempre el mismo mapa: evita lo que antes “faltaba” (documentar la componentización, rutas claras, checklist de entrega).
-
-> Los números de línea pueden variar ligeramente entre commits o ramas (`main` vs `dev-juliana-chantre`). La idea y la ubicación del archivo son las mismas.
-
 ---
 
 ## 1. React Hooks (`useState`, `useEffect`, y otros)
