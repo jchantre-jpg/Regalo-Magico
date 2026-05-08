@@ -27,3 +27,10 @@ build/
 .env.*.local
 
 *.crdownload
+
+# Claves SSH locales (no subir al repo)
+gh-regalo-magico-deploy
+gh-regalo-magico-deploy.pub
+
+# Respaldo accidental de dependencias
+node_modules.bak/
