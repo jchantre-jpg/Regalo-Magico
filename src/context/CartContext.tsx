@@ -1,3 +1,9 @@
+/**
+ * Contexto global del carrito (React Context API).
+ *
+ * - Persistencia en `localStorage` con clave `STORAGE_KEY`.
+ * - Consumir solo con `useCart()` dentro de un árbol envuelto por `<CartProvider>`.
+ */
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
 import type { Product } from '../data/catalog';
 
@@ -36,6 +42,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const add = useCallback((product: Product, quantity = 1) => {
     setItems((prev) => {
+      /** Ids como string o número según origen (API vs estático); evita duplicar la misma línea. */
       const exist = prev.find((i) => String(i.id) === String(product.id));
       let next: CartItem[];
       if (exist) {
