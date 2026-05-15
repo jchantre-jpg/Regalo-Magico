@@ -3,7 +3,7 @@
 Tienda web (catálogo, carrito y checkout vía WhatsApp) construida con **React 19**, **Vite 6**, **TypeScript** y **Tailwind CSS v4**. El repositorio incluye un **frontend SPA**, un **API REST** en Node (Express + PostgreSQL), scripts SQL en `bd/` y despliegue documentado para VPS.
 
 **Requisitos:** Node **≥ 22** (raíz del proyecto; ver también `engines` en `package.json`).
-
+//Carolina Nicholls
 ---
 
 ## Estructura del proyecto
